@@ -1,24 +1,61 @@
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>ทดสอบ geolocation</title>
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+        <title>ทดสอบ geolocation + google map</title>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+          
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
     </head>
     <body>
-        ตำแหน่งของฉัน:
+            ตำแหน่งของฉัน:
         <div id="geo_data"></div>
+        
         <script type="text/javascript">
-        if ( navigator.geolocation ) {
-            // ตรงนี้คือรองรับ geolocation
-            navigator.geolocation.getCurrentPosition(function(location) {
-                var location = location.coords;
-                $("#geo_data").html('lat: '+location.latitude+'<br />long: '+location.longitude+'<br /> altitude: '+location.altitude+'<br /> accuracy: '+location.accuracy+'<br /> altitude accuracy: '+location.altitudeAccuracy+'<br /> heading: '+location.heading+'<br /> speed: '+location.speed);
-            }, function() {
-                alert('มีปัญหาในการตรวจหาตำแหน่ง');
+        var initialLocation;
+            var bangkok = new google.maps.LatLng(13.755716, 100.501589);
+            function initialize() {
+               
+                  
+                // detect geolocation lat/lng
+                if ( navigator.geolocation ) {
+                    navigator.geolocation.getCurrentPosition(function(location) {
+                        var location = location.coords;
+                        $("#geo_data").html('lat: '+location.latitude+'<br />long: '+location.longitude);
+                        $.ajax({
+                            type: "GET",
+                            url: "https://app-notify1.herokuapp.com/index.php",
+                            data: {
+                                lat: location.latitude,
+                                long: location.longitude},
+                            cache: false,
+                            success: function(data){
+                                $("#resultarea").text(data);
+                            }
+                            });              
+                       
+                    }, function() {
+                        handleNoGeolocation();
+                    });
+                } else {
+                    handleNoGeolocation();
+                }
+                  
+                // no geolocation
+                function handleNoGeolocation() {
+                   // map.setCenter(bangkok);
+                    
+                    $("#geo_data").html('lat: 13.755716<br />long: 100.501589');
+                }
+                  
+                // set marker
+          
+            }
+              
+            $(document).ready(function() {
+                initialize();
             });
-        } else {
-            alert('เบราเซอร์นี้ไม่รองรับ geolocation');
-        }
         </script>
     </body>
 </html>
